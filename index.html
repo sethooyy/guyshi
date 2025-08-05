@@ -1,245 +1,208 @@
-<!DOCTYPE html><html lang="en"><head>
+<!DOCTYPE html><html lang="en">
+<head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Romantic Portal</title>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <title>Romantic Website for Her</title>
   <style>
     body {
       margin: 0;
-      font-family: 'Comic Sans MS', cursive;
-      background-color: #ffe6f0;
+      padding: 0;
+      background-color: pink;
+      font-family: 'Cursive', sans-serif;
       overflow: hidden;
     }
-    .center {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-    }
-    #login, #guest-confirm, #surprise, #messaging, #admin-panel {
+    #loginScreen, #questionScreen, #surpriseScreen, #messageScreen, #adminPanel {
       display: none;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      margin: 5px;
-      cursor: pointer;
-      border-radius: 10px;
-      border: none;
-    }
-    .deep-message {
-      color: white;
-      font-size: 22px;
-      text-shadow: 0 0 5px #ff99cc, 0 0 10px #ff66cc;
-      max-width: 80%;
-      margin: 20px auto;
-    }
-    .falling-text, .falling-img {
-      position: absolute;
-      animation: fall linear infinite;
-      white-space: nowrap;
-      font-size: 18px;
-      color: pink;
-      pointer-events: none;
-      opacity: 0.8;
-    }
-    .falling-img img {
-      width: 60px;
-      height: auto;
-      border-radius: 10px;
-    }
-    @keyframes fall {
-      0% { transform: translateY(-200px); opacity: 0; }
-      100% { transform: translateY(100vh); opacity: 1; }
-    }
-    .surprise-container {
-      background-color: #0d001a;
-      color: white;
-      width: 100vw;
-      height: 100vh;
-      display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      height: 100vh;
+    }
+    .falling {
+      position: fixed;
+      top: -100px;
+      animation: fall linear infinite;
+      font-size: 20px;
+    }
+    @keyframes fall {
+      0% {
+        transform: translateY(-100px);
+      }
+      100% {
+        transform: translateY(100vh);
+      }
+    }
+    .heartfelt-text {
       position: absolute;
-      top: 0;
-      left: 0;
-      overflow: hidden;
-      text-align: center;
+      white-space: nowrap;
+      color: #fff;
+      font-size: 24px;
+      animation: scrollText 20s linear infinite;
+    }
+    @keyframes scrollText {
+      0% {
+        left: 100%;
+      }
+      100% {
+        left: -100%;
+      }
+    }
+    .inputArea, .outputArea {
+      margin: 10px;
+    }
+    textarea {
+      width: 300px;
+      height: 100px;
+      font-family: cursive;
+    }
+    .admin-message {
+      background: white;
+      padding: 10px;
+      margin: 5px;
+      border-radius: 5px;
+      font-style: italic;
     }
   </style>
 </head>
 <body>
-  <audio id="bg-music" autoplay loop>
-    <source src="romantic.mp3" type="audio/mpeg">
-    Your browser does not support the audio element.
-  </audio>
-  <div id="login" class="center">
-    <h2>welcome weirdo!</h2>
-    <button onclick="showGuestConfirm()">enter as guest</button>
-    <br /><br />
-    <input type="text" id="adminUser" placeholder="Username" />
-    <input type="password" id="adminPass" placeholder="Password" />
-    <button onclick="loginAdmin()">Login as Admin</button>
-  </div>
-  <div id="guest-confirm" class="center">
-    <h3>are you seth's gf?</h3>
+  <audio id="bgMusic" src="music.mp3" autoplay loop></audio>  <div id="loginScreen">
+    <h1>Welcome to My Romantic Website</h1>
+    <button onclick="showQuestionScreen()">Enter as Guest</button>
+    <input type="text" id="adminUser" placeholder="Username">
+    <input type="password" id="adminPass" placeholder="Password">
+    <button onclick="adminLogin()">Login as Admin</button>
+  </div>  <div id="questionScreen">
+    <h2>Are you Seth's gf?</h2>
     <button onclick="showSurprise()">Yes</button>
-    <button onclick="showMessaging()">No</button>
-  </div>
-  <div id="surprise" class="surprise-container">
-    <div class="deep-message">
-      in the silence of my thoughts, your name echoes like a sacred song.
-      you are not just a memory, not just a dream—
-      you are the pulse in my veins, the whisper between stars,
-      the poem that life wrote when it first learned to love.
+    <button onclick="showMessageScreen()">No</button>
+  </div>  <div id="surpriseScreen">
+    <h1>I love you endlessly ❤️</h1>
+    <div id="fallingContainer"></div>
+    <div class="heartfelt-text" style="top: 30%">You are my forever, the poetry of my soul</div>
+    <div class="heartfelt-text" style="top: 50%">Every heartbeat spells your name</div>
+    <div class="heartfelt-text" style="top: 70%">This love is written in the stars</div>
+    <button onclick="showMessageScreen()">Leave a message</button>
+  </div>  <div id="messageScreen">
+    <div class="inputArea">
+      <textarea id="messageInput" placeholder="Type your message..."></textarea><br>
+      <button onclick="saveMessage()">Send Message</button>
     </div>
-  </div>
-  <div id="messaging" class="center">
-    <h2>Leave a Message</h2>
-    <textarea id="message" placeholder="Type your message here..."></textarea><br>
-    <button onclick="saveMessage()">Send</button>
-    <div id="messageList"></div>
-    <button onclick="logout()">Logout</button>
-  </div>
-  <div id="admin-panel" class="center">
+    <div class="outputArea" id="messages"></div>
+    <button onclick="resetSession()">Logout</button>
+  </div>  <div id="adminPanel">
     <h2>Admin Panel</h2>
     <div id="adminMessages"></div>
-    <button onclick="logout()">Logout</button>
-  </div>
-  <script>
+    <button onclick="resetSession()">Logout</button>
+  </div>  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
     const firebaseConfig = {
       apiKey: "AIzaSyCgGre7OLzLCmkUumKuKKL0Y7dxxwWKtsU",
       authDomain: "permanent-message.firebaseapp.com",
       projectId: "permanent-message",
-      storageBucket: "permanent-message.firebaseapp.com",
+      storageBucket: "permanent-message.appspot.com",
       messagingSenderId: "20733214265",
-      appId: "1:20733214265:web:7042f7536c6e88b93397e8",
-      measurementId: "G-XEJ3KD4HZC"
+      appId: "1:20733214265:web:7042f7536c6e88b93397e8"
     };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();const loginDiv = document.getElementById('login');
-const confirmDiv = document.getElementById('guest-confirm');
-const surpriseDiv = document.getElementById('surprise');
-const messagingDiv = document.getElementById('messaging');
-const adminPanel = document.getElementById('admin-panel');
-const bgMusic = document.getElementById('bg-music');
 
-function init() {
-  loginDiv.style.display = 'block';
-  createFallingText();
-  createFallingImages();
-}
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
 
-function showGuestConfirm() {
-  loginDiv.style.display = 'none';
-  confirmDiv.style.display = 'block';
-  bgMusic.play();
-}
+    const loginScreen = document.getElementById("loginScreen");
+    const questionScreen = document.getElementById("questionScreen");
+    const surpriseScreen = document.getElementById("surpriseScreen");
+    const messageScreen = document.getElementById("messageScreen");
+    const adminPanel = document.getElementById("adminPanel");
 
-function showSurprise() {
-  confirmDiv.style.display = 'none';
-  surpriseDiv.style.display = 'flex';
-}
+    window.onload = () => {
+      loginScreen.style.display = "flex";
+    };
 
-function showMessaging() {
-  confirmDiv.style.display = 'none';
-  messagingDiv.style.display = 'block';
-  removeFallingElements();
-  renderMessages();
-}
+    window.showQuestionScreen = () => {
+      loginScreen.style.display = "none";
+      questionScreen.style.display = "flex";
+    };
 
-function loginAdmin() {
-  const user = document.getElementById('adminUser').value;
-  const pass = document.getElementById('adminPass').value;
-  if (user === 'user' && pass === 'jansitgwapo') {
-    loginDiv.style.display = 'none';
-    adminPanel.style.display = 'block';
-    renderAdminMessages();
-  } else {
-    alert('Incorrect credentials!');
-  }
-}
+    window.showSurprise = () => {
+      questionScreen.style.display = "none";
+      surpriseScreen.style.display = "flex";
+      startFallingElements();
+    };
 
-function saveMessage() {
-  const msg = document.getElementById('message').value.trim();
-  if (!msg) return;
-  const id = Date.now();
-  db.ref('messages/' + id).set({ text: msg });
-  document.getElementById('message').value = '';
-  renderMessages();
-}
+    window.showMessageScreen = () => {
+      questionScreen.style.display = "none";
+      surpriseScreen.style.display = "none";
+      messageScreen.style.display = "flex";
+      loadMessages();
+    };
 
-function renderMessages() {
-  const list = document.getElementById('messageList');
-  db.ref('messages').once('value', snapshot => {
-    list.innerHTML = '';
-    snapshot.forEach(child => {
-      const div = document.createElement('div');
-      div.textContent = child.val().text;
-      div.style.fontFamily = 'cursive';
-      list.appendChild(div);
-    });
-  });
-}
+    window.adminLogin = () => {
+      const user = document.getElementById("adminUser").value;
+      const pass = document.getElementById("adminPass").value;
+      if (user === "user" && pass === "jansitgwapo") {
+        loginScreen.style.display = "none";
+        adminPanel.style.display = "flex";
+        loadAdminMessages();
+      } else {
+        alert("Invalid credentials");
+      }
+    };
 
-function renderAdminMessages() {
-  const list = document.getElementById('adminMessages');
-  db.ref('messages').once('value', snapshot => {
-    list.innerHTML = '';
-    snapshot.forEach(child => {
-      const key = child.key;
-      const div = document.createElement('div');
-      div.innerHTML = `${child.val().text} <button onclick="deleteMsg('${key}')">Delete</button>`;
-      list.appendChild(div);
-    });
-  });
-}
+    window.resetSession = () => {
+      location.reload();
+    };
 
-function deleteMsg(key) {
-  db.ref('messages/' + key).remove();
-  renderAdminMessages();
-}
+    window.saveMessage = async () => {
+      const text = document.getElementById("messageInput").value;
+      if (!text.trim()) return;
+      await addDoc(collection(db, "messages"), { text });
+      document.getElementById("messageInput").value = "";
+      loadMessages();
+    };
 
-function logout() {
-  location.reload();
-}
+    async function loadMessages() {
+      const messagesDiv = document.getElementById("messages");
+      messagesDiv.innerHTML = "";
+      const snapshot = await getDocs(collection(db, "messages"));
+      snapshot.forEach(doc => {
+        const div = document.createElement("div");
+        div.className = "admin-message";
+        div.innerText = doc.data().text;
+        messagesDiv.appendChild(div);
+      });
+    }
 
-function createFallingText() {
-  for (let i = 0; i < 20; i++) {
-    const text = document.createElement('div');
-    text.className = 'falling-text';
-    text.style.left = `${Math.random() * 100}vw`;
-    text.style.animationDuration = `${5 + Math.random() * 5}s`;
-    text.style.top = `-${Math.random() * 200}px`;
-    text.innerText = 'I LOVE YOU';
-    document.body.appendChild(text);
-  }
-}
+    async function loadAdminMessages() {
+      const adminDiv = document.getElementById("adminMessages");
+      adminDiv.innerHTML = "";
+      const snapshot = await getDocs(collection(db, "messages"));
+      snapshot.forEach(msgDoc => {
+        const wrapper = document.createElement("div");
+        wrapper.className = "admin-message";
+        wrapper.innerText = msgDoc.data().text;
+        const del = document.createElement("button");
+        del.innerText = "Delete";
+        del.onclick = async () => {
+          await deleteDoc(doc(db, "messages", msgDoc.id));
+          loadAdminMessages();
+        };
+        wrapper.appendChild(del);
+        adminDiv.appendChild(wrapper);
+      });
+    }
 
-function createFallingImages() {
-  const images = ['gf2.jpeg', 'gf3.jpeg', 'gf4.jpeg', 'gf5.jpeg'];
-  for (let i = 0; i < 15; i++) {
-    const imgDiv = document.createElement('div');
-    imgDiv.className = 'falling-img';
-    imgDiv.style.left = `${Math.random() * 100}vw`;
-    imgDiv.style.animationDuration = `${5 + Math.random() * 5}s`;
-    imgDiv.style.top = `-${Math.random() * 200}px`;
-    const img = document.createElement('img');
-    img.src = images[Math.floor(Math.random() * images.length)];
-    imgDiv.appendChild(img);
-    document.body.appendChild(imgDiv);
-  }
-}
-
-function removeFallingElements() {
-  document.querySelectorAll('.falling-text, .falling-img').forEach(el => el.remove());
-}
-
-window.onload = init;
-
-  </script>
-</body>
+    function startFallingElements() {
+      const container = document.getElementById("fallingContainer");
+      const texts = ["I love you", "Forever yours", "My heart is yours", "You complete me"];
+      for (let i = 0; i < 40; i++) {
+        const elem = document.createElement("div");
+        elem.className = "falling";
+        elem.style.left = `${Math.random() * 100}vw`;
+        elem.style.animationDuration = `${5 + Math.random() * 5}s`;
+        elem.innerText = texts[Math.floor(Math.random() * texts.length)];
+        container.appendChild(elem);
+      }
+    }
+  </script></body>
 </html>
